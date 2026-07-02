@@ -6,7 +6,7 @@ const svg = document.documentElement;
 // レスポンシブ
 // ====================
 function resize() {
-    const s = Math.min(innerWidth, innerHeight) * 0.95;
+    const s = Math.min(innerWidth, innerHeight);
     svg.setAttribute("width", s);
     svg.setAttribute("height", s);
     svg.setAttribute("viewBox", "0 0 1000 1000");
@@ -24,221 +24,152 @@ const el = (t, a = {}) => {
 };
 
 // ====================
-// 背景
+// 背景・地面
 // ====================
 svg.append(
     el("rect", {
+        x: 0,
+        y: 0,
         width: 1000,
         height: 1000,
-        fill: "#111",
+        fill: "#87CEEB",
+    }),
+);
+
+svg.append(
+    el("rect", {
+        x: 0,
+        y: 900,
+        width: 1000,
+        height: 100,
+        fill: "silver",
     }),
 );
 
 // ====================
-// 雷レイヤー
+// 顔文字
 // ====================
-const lightningLayer = el("g");
-svg.append(lightningLayer);
+const face = el("text", {
+    x: 500,
+    y: 890,
+    "text-anchor": "middle",
+    "font-weight": "bold",
+    "font-size": 64,
+    fill: "teal",
+});
+face.textContent = "(･ω･)";
+svg.append(face);
 
-const lightningCount = 8;
-const lightnings = [];
+// ====================
+// 雲
+// ====================
+const cloud = el("g");
+svg.append(cloud);
+cloud.append(
+    el("circle", { cx: 0, cy: 0, r: 80, fill: "#fff" }),
+    el("circle", { cx: 120, cy: 0, r: 100, fill: "#fff" }),
+    el("circle", { cx: 240, cy: 0, r: 80, fill: "#fff" }),
+);
 
-for (let i = 0; i < lightningCount; i++) {
-    const path = el("path", {
-        fill: "none",
-        stroke: "#fff",
-        "stroke-width": 3,
+let cloudX = -300;
+let cloudY = 200;
+
+// ====================
+// 雨
+// ====================
+const rain = [];
+const rainCount = 400;
+
+for (let i = 0; i < rainCount; i++) {
+    const r = el("line", {
+        x1: 0,
+        y1: 0,
+        x2: 0,
+        y2: 18,
+        stroke: "#1E90FF",
+        "stroke-width": 2,
         opacity: 0,
     });
 
-    lightningLayer.append(path);
+    svg.append(r);
 
-    lightnings.push({
-        el: path,
-        active: false,
-        time: 0,
-        duration: 0,
-        startX: 0,
-        endX: 0,
+    rain.push({
+        el: r,
+        x: Math.random() * 1000,
+        y: Math.random() * 600,
+        speed: 6 + Math.random() * 6,
     });
 }
 
-function rand(min, max) {
-    return Math.random() * (max - min) + min;
-}
+// ====================
+// 状態管理
+// ====================
+// 0:待機 → 1:雲進入 → 2:雨 → 3:悲しい → 4:リセット
+let state = 0;
+let timer = 0;
 
-function createLightning(L) {
-    const { el } = L;
+// ====================
+// アニメーションループ
+// ====================
+function loop() {
+    timer++;
 
-    const startX = rand(100, 900);
-    const endX = startX + rand(-80, 80);
-
-    let x = startX;
-    let y = rand(-100, -50);
-
-    const segments = [];
-    segments.push(`${x},${y}`);
-
-    const points = Math.floor(rand(6, 12));
-
-    for (let i = 0; i < points; i++) {
-        y += rand(80, 150);
-        x += rand(-60, 60);
-        segments.push(`${x},${y}`);
+    // --------------------
+    // 雲の動き
+    // --------------------
+    if (state === 0) {
+        cloudX += 2;
+        if (cloudX > 250) state = 2;
     }
 
-    segments.push(`${endX},${1000 + 100}`);
-
-    el.setAttribute("d", "M " + segments.join(" L "));
-
-    L.active = true;
-    L.time = 0;
-    L.duration = rand(20, 40); // フレーム数
-    L.startX = startX;
-    L.endX = endX;
-
-    el.setAttribute("stroke-width", rand(2, 4));
-
-    el.setAttribute("opacity", rand(0.6, 1));
-}
-
-// ====================
-// 顔文字グループ
-// ====================
-const boss = el("g");
-svg.append(boss);
-
-const shadow = el("text", {
-    x: 500,
-    y: 505,
-    "text-anchor": "middle",
-    "dominant-baseline": "middle",
-    "font-size": 120,
-    "font-family": "monospace",
-    "font-weight": "bold",
-    fill: "#000",
-    opacity: 0.6,
-});
-shadow.textContent = "(･ω･)";
-boss.append(shadow);
-
-const face = el("text", {
-    x: 500,
-    y: 500,
-    "text-anchor": "middle",
-    "dominant-baseline": "middle",
-    "font-size": 120,
-    "font-family": "monospace",
-    "font-weight": "bold",
-});
-
-const chars = ["(", "･", "ω", "･", ")"];
-const spans = [];
-
-chars.forEach((c) => {
-    const t = el("tspan");
-    t.textContent = c;
-    face.append(t);
-    spans.push(t);
-});
-
-boss.append(face);
-
-// ====================
-// レインボー色
-// ====================
-let hue = 0;
-
-function rainbowColor(h) {
-    let l = 70;
-
-    if (h >= 180 && h <= 300) {
-        l = 80;
+    if (state >= 2) {
+        cloudX += 1;
     }
 
-    return `hsl(${h},100%,${l}%)`;
-}
-
-// ====================
-// アニメーション
-// ====================
-let t = 0;
-
-function animate() {
-    t += 0.02;
-    hue = (hue + 1) % 360;
-
-    // ボスの鼓動
-    const scale = 1 + Math.sin(t * 2.5) * 0.05;
-
-    const y = Math.sin(t * 2) * 10;
-
-    boss.setAttribute(
-        "transform",
-        `translate(500 ${500 + y})
-         scale(${scale})
-         translate(-500 -500)`,
-    );
-
-    // 顔文字を虹色発光
-    spans.forEach((sp, i) => {
-        const h = (hue + i * 72) % 360;
-
-        const color = rainbowColor(h);
-
-        sp.setAttribute("fill", color);
-
-        sp.setAttribute(
-            "filter",
-            `drop-shadow(0 0 10px ${color})
-             drop-shadow(0 0 20px ${color})
-             drop-shadow(0 0 35px ${color})`,
-        );
-    });
-
-    // ランダムで雷を落とす
-    if (Math.random() < 0.05) {
-        const L = lightnings.find((l) => !l.active);
-
-        if (L) {
-            createLightning(L);
-        }
+    if (cloudX > 1200) {
+        cloudX = -300;
+        state = 0;
+        face.textContent = "(･ω･)";
     }
 
-    // 雷アニメーション
-    lightnings.forEach((L) => {
-        if (!L.active) return;
+    cloud.setAttribute("transform", `translate(${cloudX},${cloudY})`);
 
-        L.time++;
+    // --------------------
+    // 雨開始条件
+    // --------------------
+    const raining = state >= 2 && cloudX > 200 && cloudX < 1000;
 
-        const alpha = 1 - L.time / L.duration;
+    if (raining) {
+        face.textContent = "(´；ω；｀)";
+        state = 3;
+    }
 
-        L.el.setAttribute("opacity", alpha);
+    // --------------------
+    // 雨アニメーション
+    // --------------------
+    for (let i = 0; i < rain.length; i++) {
+        const p = rain[i];
 
-        // 点滅
-        if (Math.random() < 0.4) {
-            L.el.setAttribute("opacity", alpha * 0.3);
+        if (raining) {
+            p.el.setAttribute("opacity", 1);
+
+            p.y += p.speed;
+
+            if (p.y > 1000) {
+                p.y = -20;
+                p.x = Math.random() * 1000;
+            }
+        } else {
+            p.el.setAttribute("opacity", 0);
         }
 
-        // 雷の色
-        const c = rainbowColor((hue + L.startX / 3) % 360);
+        p.el.setAttribute("x1", p.x);
+        p.el.setAttribute("x2", p.x);
+        p.el.setAttribute("y1", p.y);
+        p.el.setAttribute("y2", p.y + 18);
+    }
 
-        L.el.setAttribute("stroke", c);
-
-        L.el.setAttribute(
-            "filter",
-            `drop-shadow(0 0 8px ${c})
-             drop-shadow(0 0 16px ${c})
-             drop-shadow(0 0 30px ${c})`,
-        );
-
-        if (L.time >= L.duration) {
-            L.active = false;
-            L.el.setAttribute("opacity", 0);
-        }
-    });
-
-    requestAnimationFrame(animate);
+    requestAnimationFrame(loop);
 }
 
-animate();
+loop();
