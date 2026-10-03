@@ -1,8 +1,9 @@
 ENV["GKSwstype"] = "100"
 using Plots, LaTeXStrings
 
-x = range(-ℯ, ℯ, length = 4000)
-y = @. sin(99x) * sqrt(max((ℯ^2 - x^2) / 1.8, 0)) + log(abs(x) + 0.7)
+x = range(-π, π, length = 10000)
+y = @. sin(factorial(5) * x) * sqrt((π^2 - x^2) / sqrt(π)) + log(abs(x) + sqrt(1 / 2))
+
 
 plot(x, y,
      legend = false,
@@ -19,7 +20,7 @@ plot(x, y,
      yticks = -3:1:3,
      tickfontsize = 12,
      tickfontcolor = :black,
-     title = L"y = \sin(99x)\sqrt{\frac{e^2-x^2}{1.8}}+\ln(|x|+0.7)",
-     titlefontsize = 32)
+     title = L"y = \sin(5!\,x)\,\sqrt{\frac{\pi^{2}-x^{2}}{\sqrt{\pi}}} + \ln\!\left(|x| + \sqrt{\frac{1}{2}}\right)",
+     titlefontsize = 24)
 
 savefig("app.svg")
