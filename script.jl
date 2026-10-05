@@ -1,8 +1,8 @@
 ENV["GKSwstype"] = "100"
-using Plots, LaTeXStrings
+using Plots, LaTeXStrings, Base.MathConstants
 
-x = range(-π, π, length = 10000)
-y = @. sin(π^π * x) * sqrt((π^2 - x^2)) + log(abs(x) + 1 / π)
+x = range(-4, 4, length = 10000)
+y = @. sqrt((π^2 - x^2) * 0.5) / sin(π ^ π * x) + log(abs(x) + 0.5)
 
 plot(x, y,
      legend = false,
@@ -10,8 +10,8 @@ plot(x, y,
      size = (900, 900),
      color = :red,
      framestyle = :origin,
-     aspect_ratio = :equal,          # 縦横の縮尺を 1:1 にする
-     xlims = (-5, 5),                # x, y を同じ幅にして正方形に
+     aspect_ratio = :equal,
+     xlims = (-5, 5),
      ylims = (-5, 5),
      grid = true,
      gridalpha = 0.4,
@@ -22,7 +22,7 @@ plot(x, y,
      yticks = -4:1:4,
      tickfontsize = 12,
      tickfontcolor = :black,
-     title = L"y = \sin\!\left(\pi^{\pi} x\right)\sqrt{\pi^{2}-x^{2}} + \ln\!\left(|x| + \frac{1}{\pi}\right)",
+     title = L"y = \frac{\sqrt{\dfrac{\pi^{2}-x^{2}}{2}}}{\sin\!\left(\pi^{\pi} x\right)} + \ln\!\left(|x| + \dfrac{1}{2}\right)",
      titlefontsize = 24)
 
 savefig("app.svg")
