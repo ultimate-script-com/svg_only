@@ -2,7 +2,7 @@ ENV["GKSwstype"] = "100"
 using Plots, LaTeXStrings, Base.MathConstants
 
 x = range(-π, π, length = 10000)
-y = @. sqrt((π^2 - x^2) * 0.5) / sin(5^ℯ * x) + log(abs(x) + 0.5)
+y = @. sqrt((π^2 - x^2) / 2) / sin(4^ℯ * x) + log(abs(x) + 1/2)
 
 plot(x, y,
      legend = false,
@@ -22,7 +22,7 @@ plot(x, y,
      yticks = -4:1:4,
      tickfontsize = 12,
      tickfontcolor = :black,
-     title = L"y = \frac{\sqrt{\dfrac{\pi^{2}-x^{2}}{2}}}{\sin\!\left(5^{e}\,x\right)} + \ln\!\left(|x| + \dfrac{1}{2}\right)",
+     title = L"y = \frac{\sqrt{\dfrac{\pi^2 - x^2}{2}}}{\sin\left(5^{e} x\right)} + \ln\left(|x| + \frac{1}{2}\right)",
      titlefontsize = 24)
 
 savefig("app.svg")
