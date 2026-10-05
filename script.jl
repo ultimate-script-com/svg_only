@@ -1,7 +1,7 @@
 ENV["GKSwstype"] = "100"
 using Plots, LaTeXStrings, Base.MathConstants
 
-x = range(-4, 4, length = 10000)
+x = range(-π, π, length = 10000)
 y = @. sqrt((π^2 - x^2) * 0.5) / sin(π ^ π * x) + log(abs(x) + 0.5)
 
 plot(x, y,
