@@ -22,7 +22,7 @@ plot(x, y,
      yticks = -4:1:4,
      tickfontsize = 12,
      tickfontcolor = :black,
-     title = L"y = \frac{\sqrt{\dfrac{\pi^2 - x^2}{2}}}{\sin\left(5^{e} x\right)} + \ln\left(|x| + \frac{1}{2}\right)",
+     title = L"y = \frac{\sqrt{\dfrac{\pi^2 - x^2}{2}}}{\sin\left(4^{e} x\right)} + \ln\left(|x| + \frac{1}{2}\right)",
      titlefontsize = 24)
 
 savefig("app.svg")
